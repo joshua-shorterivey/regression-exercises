@@ -15,7 +15,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-#### Acquire
+#### Acquire #### 
 def acquire_zillow():
     #create url to access DB
     url = f"mysql+pymysql://{user}:{password}@{host}/zillow"
@@ -39,8 +39,8 @@ def acquire_zillow():
                                 'taxamount': 'tax_amount',
                                 'yearbuilt': 'year_built'})
     return df
-
-#### Prepare (remove outliers, do some visualizations, and train/test/impute)
+ 
+#### Prepare (remove outliers, do some visualizations, and train/test/impute) #### 
 
 def remove_outliers(df, k, col_list):
     """ 
@@ -166,7 +166,38 @@ def prep_zillow(df):
 
     return train, validate, test
 
-#### Wrangle
+#### Scale ####
+
+def subset_scaler (train, validate, test):
+    """
+    Purpose
+        Uses sklearn MinMaxScaler to transform Zillow dataset
+        Produces histogram of scaled data for continuous columns
+
+    Parameters
+        train, validate, test data subsets
+
+    Output
+        scaled versions of train, validate, and test data subsets 
+    """
+
+    #create scaler object
+    scaler = sklearn.preprocessing.MinMaxScaler()
+
+    #fit to data
+    scaler.fit(train)
+
+    # apply
+    train_minmax = pd.DataFrame(scaler.transform(train), index=train.index, columns=train.columns)
+    validate_minmax =  pd.DataFrame(scaler.transform(validate), index=validate.index, columns=validate.columns)
+    test_minmax =  pd.DataFrame(scaler.transform(test), index=test.index, columns=test.columns)
+
+    #visualize
+    make_hist(train_minmax)
+        
+    return train_minmax, validate_minmax, test_minmax
+
+#### Wrangle ####
 
 def wrangle_zillow():
     """ 
