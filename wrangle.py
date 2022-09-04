@@ -1,13 +1,12 @@
-
-#### imports
+#### Imports #### 
 
 import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
 from env import user, password, host
+from os.path import exists
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
 
@@ -28,8 +27,11 @@ def acquire_zillow():
     WHERE propertylandusedesc IN ("Single Family Residential", "Inferred Single Family Residential")
     """
 
-    #read the data in a dataFrame
-    df = pd.read_sql(sql, url)
+    #read the data in a dataFrame. use existing csv if it exists. 
+    if exists('zillow_data.csv'):
+        df = pd.read_csv('zillow_data.csv').drop(columns='Unnamed: 0')
+    else:
+        df = pd.read_sql(sql, url)
 
     # take care of column names --> no need for takeaways
     df = df.rename(columns = {'bedroomcnt':'bedrooms',
@@ -117,6 +119,15 @@ def make_box(df):
 
     plt.show()
 
+def make_count(df):
+    #countplot
+    for col in ['year_built', 'fips']:
+        sns.countplot(data=df, x=col)
+        if col == 'year_built':
+            plt.xticks(ticks=np.arange(0,100,20), rotation=20)
+        plt.show()
+    return 
+
 # prep function to bring it together
 def prep_zillow(df):
     """
@@ -135,6 +146,9 @@ def prep_zillow(df):
     # view distributions with histogram and boxplots
     make_hist(df)
     make_box(df)
+
+    # view distributions of categorical data
+    make_count(df)
 
     # change data types for fips and year_built. 
     df.fips = df.fips.astype(object)
