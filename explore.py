@@ -69,3 +69,12 @@ def plot_categorical_and_continuous_vars(df):
     g.axes[0,0].set_xticks(np.arange(0,104,20));
     
     return
+
+def plot_categorical_pair(df):
+    """ 
+    Purpose
+        Plots relationship between year_guil and fips zone
+    """
+    sns.catplot(data=df, x='fips', y='year_built', kind='swarm', height=4, aspect=2);
+    
+    return

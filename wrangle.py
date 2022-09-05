@@ -9,6 +9,7 @@ from env import user, password, host
 from os.path import exists
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
+from sklearn import preprocessing
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -196,16 +197,24 @@ def subset_scaler (train, validate, test):
     """
 
     #create scaler object
-    scaler = sklearn.preprocessing.MinMaxScaler()
+    scaler = preprocessing.MinMaxScaler()
+    
+    # create copies to hold scaled data
+    train_minmax = train.copy(deep=True)
+    validate_minmax = validate.copy(deep=True)
+    test_minmax =  test.copy(deep=True)
+    
+    #create list of numeric columns for scaling
+    num_cols = train.select_dtypes(exclude='object')
 
     #fit to data
-    scaler.fit(train)
+    scaler.fit(num_cols)
 
     # apply
-    train_minmax = pd.DataFrame(scaler.transform(train), index=train.index, columns=train.columns)
-    validate_minmax =  pd.DataFrame(scaler.transform(validate), index=validate.index, columns=validate.columns)
-    test_minmax =  pd.DataFrame(scaler.transform(test), index=test.index, columns=test.columns)
-
+    train_minmax[num_cols.columns] = scaler.transform(train[num_cols.columns])
+    validate_minmax[num_cols.columns] =  scaler.transform(validate[num_cols.columns])
+    test_minmax[num_cols.columns] =  scaler.transform(test[num_cols.columns]
+    )
     #visualize
     make_hist(train_minmax)
         
